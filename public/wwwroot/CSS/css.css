@@ -1,0 +1,49 @@
+.btn {
+    height: 50%;
+    margin: 5px;
+    padding: 5px;
+}
+.btn-success { 
+    border-radius: 15%;
+}
+.form-control {
+    width: 50%;
+}
+
+body {
+    padding: 20px;
+    margin: 20px;
+    height: 100%;
+    width: 100%;
+    background: linear-gradient(110deg, #44d6b0bd 60%, #64f98be0 60%);
+}
+textarea
+{
+  width:75%;
+  margin:5px 0;
+  padding:3px;
+  border: none;
+}
+textarea:focus {
+  border-color: #2e97ff;
+  border-bottom: 10px solid #2e97ff;;
+}
+
+input {
+  margin: 5px 5px 5px 40px;
+  border: none;
+  border-radius: .25rem;
+  height: 30px;
+}
+input:focus
+{
+    border-color: #2e97ff;
+    border-radius: .25rem;
+    border-bottom: 2px solid #3ee4b2;;
+    
+}
+hr 
+{
+  width: 100%;
+  text-align: left;
+}

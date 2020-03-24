@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Note</title>
+
+  <!-- update the version number as needed -->
+  <script defer src="/__/firebase/7.11.0/firebase-app.js"></script>
+  <!-- include only the Firebase features as you need -->
+  <script defer src="/__/firebase/7.11.0/firebase-auth.js"></script>
+  <script defer src="/__/firebase/7.11.0/firebase-database.js"></script>
+  <script defer src="/__/firebase/7.11.0/firebase-app.js"></script>
+  <script defer src="/__/firebase/7.11.0/firebase-firestore.js"></script>
+  <script defer src="/__/firebase/7.11.0/firebase-messaging.js"></script>
+  <script defer src="/__/firebase/7.11.0/firebase-storage.js"></script>
+  <!-- initialize the SDK after all desired features are loaded -->
+  <script defer src="/__/firebase/init.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"></script>
+  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+  
+
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+  <link rel="stylesheet" type="text/css" href="./wwwroot/CSS/css.css">
+  <style media="screen">
+
+  </style>
+</head>
+
+<body>
+
+
+  <p style="margin: 5px 5px 5px 40px;" id="ipAddress" data-value=""></p>
+  <input type="text" name="" id="textBox" />
+  <button id="btn1" class="btn btn-success btn-sm">Add</button>
+
+  <ul id="todo-list">
+    <!-- render -->
+  </ul>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+
+      //GET ipAddress
+      var ipAddress = document.getElementById('ipAddress');
+
+      async function getIp(url) {
+        var yourIp = await axios.get(url)
+          .then(function(response) {
+              var data = response.data;
+              console.log('Response: ', data.ip);   
+              ipAddress.innerHTML = '<b>Current IP: ' + data.ip + '</b>';  
+              ipAddress.dataset.value = data.ip;    
+              return data.ip;
+          })
+          .catch(function(err) {
+              console.log('Erorr: ', 'NotFound');
+          });
+        return [yourIp];
+      }
+
+      getIp('https://api.ipify.org/?format=json')
+        .then(function(values) {
+            return values;
+        });
+      
+
+      
+
+      var db = firebase.firestore();
+      var items = [];
+
+      db.collection("notes").get()
+        .then(function (snap) {
+          items = snap.docs;
+          render();
+        });
+
+      var todoList = document.getElementById('todo-list');
+
+      var btnAdd = document.getElementById('btn1');
+      btnAdd.addEventListener('click', addItem);
+
+      todoList.addEventListener('click', onButtonItem);
+
+
+      function onButtonItem(event) {
+        var eventTarget = event.target;
+        if ( eventTarget.dataset.value === 'Copy' ) {
+          copyItem(parseInt(eventTarget.dataset.id));
+        }
+        if (eventTarget.dataset.value === 'Remove') {
+          removeItem(eventTarget.dataset.id, eventTarget.dataset.index);
+          //console.log('pa rama : ', this.dataset.id, this.dataset.index);
+        }
+      }
+
+
+      function removeItem(doc, index) {
+        db.collection("notes").doc(doc).delete()
+          .then(function() {
+            console.log("Document successfully deleted!");
+            items.splice(index,1);
+            render();
+          }).catch(function(error) {
+              console.error("Error removing document: ", error);
+          });
+
+      }
+
+      function addItem() {
+        var input = document.getElementById('textBox');
+        var newItem = { content: input.value , creatAt: moment().format('MMMM Do YYYY, h:mm:ss a'), ip: ipAddress.dataset.value };
+
+        // db.collection("notes").doc("LA").set({
+        //     name: "Los Angeles",
+        //     state: "CA",
+        //     country: "USA"
+        // })
+        // .then(function() {
+        //     console.log("Document successfully written!");
+        // })
+        // .catch(function(error) {
+        //     console.error("Error writing document: ", error);
+        // });
+        
+        db.collection("notes").add(newItem)
+          .then(function (docRef) {
+            console.log("Document written with ID: ");
+            return docRef.get();
+          })
+          .then(function (snap) {
+            console.log(snap.data());
+            items.push(snap);
+            input.value = '';
+            render();
+          })
+          .catch(function (error) {
+            console.error("Error adding document: ", error);
+          });
+
+        render();
+      }
+
+      function copyItem(index) {
+        var itemChoose = document.getElementById(index);
+        itemChoose.select();
+        itemChoose.setSelectionRange(0, 99999)
+        document.execCommand("copy");
+        console.log('copied:', itemChoose.value);
+      }
+
+      function render() {
+
+        // db.collection("notes").get()
+        // .then(function (snap) {
+        //   items = snap.docs;
+        // });
+
+        var data = items.map(function (item, index) {
+          var dataItem = item.data();
+          //console.log(dataItem);
+          var time = dataItem.creatAt === undefined?'No Time data': dataItem.creatAt;
+          var ip = dataItem.ip === undefined?'No Ip data': dataItem.ip;
+          return '<p style=""><b>Created At:</b> ' + time + '</p><p><b>From: </b>' + ip + '</p><textarea cols: "50" rows="6" id="' + index + '" data-value="'+ dataItem.content +'" data-id="'+item.id+'">' + dataItem.content + '</textarea><br/><button data-value="Copy" class="btn btn-primary btn-sm btnCp" data-id="' + index + '">Copy</button><button data-value="Remove" class="btn btn-danger btn-sm btnRemove" data-id="' + item.id + '" data-index="'+index+'">Remove</button><hr/>';
+        });
+        todoList.innerHTML = data.join('');
+        console.log(items);
+
+      }
+    });
+  </script>
+</body>
+
+</html>

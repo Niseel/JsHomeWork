@@ -1,0 +1,19 @@
+{
+  "indexes": [
+    {
+      "collectionGroup": "note",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "content",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "ID",
+          "order": "ASCENDING"
+        }
+      ]
+    }
+  ],
+  "fieldOverrides": []
+}
