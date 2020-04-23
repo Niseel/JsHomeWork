@@ -76,7 +76,7 @@
       db.collection("notes").get()
         .then(function (snap) {
           items = snap.docs;
-
+          render();
         });
 
       var todoList = document.getElementById('todo-list');
@@ -170,10 +170,6 @@
         todoList.innerHTML = data.join('');
         console.log(items);
 
-      }
-
-      function renderDBRR() {
-        todoList.innerHTML = "Đầu Buồi Rẻ Rách";
       }
     });
   </script>
