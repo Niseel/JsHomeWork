@@ -43,6 +43,7 @@
 
       //GET ipAddress
       var ipAddress = document.getElementById('ipAddress');
+      var ip;
 
       async function getIp(url) {
         var yourIp = await axios.get(url)
@@ -51,6 +52,8 @@
             console.log('Response: ', data.ip);
             ipAddress.innerHTML = '<b>Current IP: ' + data.ip + '</b>';
             ipAddress.dataset.value = data.ip;
+            ip = data.ip;
+            console.log(ip);
             return data.ip;
           })
           .catch(function (err) {
@@ -65,7 +68,7 @@
         });
 
 
-
+      
 
       var db = firebase.firestore();
       var items = [];
@@ -73,7 +76,7 @@
       db.collection("notes").get()
         .then(function (snap) {
           items = snap.docs;
-          render();
+
         });
 
       var todoList = document.getElementById('todo-list');
@@ -167,6 +170,10 @@
         todoList.innerHTML = data.join('');
         console.log(items);
 
+      }
+
+      function renderDBRR() {
+        todoList.innerHTML = "Đầu Buồi Rẻ Rách";
       }
     });
   </script>
